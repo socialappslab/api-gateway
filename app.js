@@ -47,7 +47,7 @@ var signalsProxy = proxy('http://localhost:3023/signals');
 var signallogProxy = proxy('http://localhost:3023/signallog');
 
 // mount `exampleProxy` in web server
-var app = express();
+
 app.use(usersProxy);
 app.use(servicesProxy);
 app.use(identitiesProxy);
