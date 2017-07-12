@@ -3,8 +3,9 @@ var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
 const proxy = require('http-proxy-middleware');
+var bodyParser = require('body-parser');
+
 
 var index = require('./routes/index');
 
@@ -17,10 +18,6 @@ app.set('view engine', 'jade');
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-    extended: false
-}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -39,6 +36,8 @@ app.use('/', index);
 var usersProxy = proxy('http://localhost:3024/users');
 var servicesProxy = proxy('http://localhost:3024/services');
 var identitiesProxy = proxy('http://localhost:3024/identities');
+var preferencesProxy = proxy('http://localhost:3024/preferences');
+var messagesProxy = proxy('http://localhost:3024/messages');
 
 //Subscription Manager
 var eventsProxy = proxy('http://localhost:3023/events');
@@ -46,27 +45,33 @@ var subscriptionsProxy = proxy('http://localhost:3023/subscriptions');
 var signalsProxy = proxy('http://localhost:3023/signals');
 var signallogProxy = proxy('http://localhost:3023/signallog');
 
-// mount `exampleProxy` in web server
-
+//mount proxies for entity manager
 app.use(usersProxy);
 app.use(servicesProxy);
 app.use(identitiesProxy);
+app.use(preferencesProxy);
+app.use(messagesProxy);
 
+//mount proxies for subscription manager
 app.use(eventsProxy);
 app.use(subscriptionsProxy);
 app.use(signalsProxy);
 app.use(signallogProxy);
 
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+    extended: false
+}));
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use((req, res, next) => {
     var err = new Error('Not Found');
     err.status = 404;
     next(err);
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use((err, req, res, next) => {
     // set locals, only providing error in development
     res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};
